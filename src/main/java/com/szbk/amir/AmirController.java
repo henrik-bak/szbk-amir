@@ -24,7 +24,7 @@ public class AmirController {
             String testString = rna.substring(i, i+22);
 
             if (startWithGC(testString) && isCorrectTAPosition(testString) && thirdCharNotTA(testString) &&
-                    correctAPosition(testString) && gcContectCheck(testString) && atContectCheck(testString) && consecutiveLetter(testString)) {
+                    correctAPosition(testString) && gcContentCheck19(testString) && gcContentCheck1022(testString) && consecutiveLetter(testString)) {
                 matches.add(number + " : " + testString);
                 number++;
             }
@@ -42,30 +42,29 @@ public class AmirController {
         return testString.startsWith("G") || testString.startsWith("C");
     }
 
-    private boolean isCorrectTAPosition(String testString) {
-        return testString.charAt(21)=='T' || testString.charAt(21)=='A';
-    }
-
     private boolean thirdCharNotTA(String testString) {
         return testString.charAt(2)!='T' && testString.charAt(2)!='A';
     }
 
+    private boolean gcContentCheck19(String testString) {
+        int gcNumber = (int) testString.substring(0, 8).chars().filter(ch -> ch == 'G' || ch == 'C').count();
+        return gcNumber > 5;
+    }
+
     private boolean correctAPosition(String testString) {
-        return testString.charAt(8)=='A' || testString.charAt(9)=='A' ||
-                testString.charAt(8)=='T' || testString.charAt(9)=='T';
+        return testString.charAt(9)=='A' || testString.charAt(9)=='T';
     }
 
-    private boolean gcContectCheck(String testString) {
-        int gcNumber = (int) testString.chars().filter(ch -> ch == 'G' || ch == 'C').count();
-        return gcNumber <= 11;
-    }
-
-    private boolean atContectCheck(String testString) {
-        int gcNumber = (int) testString.substring(8).chars().filter(ch -> ch == 'A' || ch == 'T').count();
-        return gcNumber >= 7;
+    private boolean gcContentCheck1022(String testString) {
+        int gcNumber = (int) testString.substring(9).chars().filter(ch -> ch == 'G' || ch == 'C').count();
+        return gcNumber < 6;
     }
 
     private boolean consecutiveLetter(String testString) {
         return !testString.contains("AAAA") && !testString.contains("GGGG") && !testString.contains("TTTT") && !testString.contains("CCCC");
     }
+    private boolean isCorrectTAPosition(String testString) {
+        return testString.charAt(21)=='T' || testString.charAt(21)=='A';
+    }
+
 }
