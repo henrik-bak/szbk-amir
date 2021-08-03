@@ -43,7 +43,7 @@ public class AmirController {
     }
 
     private boolean thirdCharNotTA(String testString) {
-        return testString.charAt(2)!='T' && testString.charAt(2)!='A';
+        return testString.charAt(2)!='A';
     }
 
     private boolean gcContentCheck19(String testString) {
@@ -61,7 +61,7 @@ public class AmirController {
     }
 
     private boolean consecutiveLetter(String testString) {
-        return !testString.contains("AAAA") && !testString.contains("GGGG") && !testString.contains("TTTT") && !testString.contains("CCCC");
+        return !testString.contains("AAAAA") && !testString.contains("GGGG") && !testString.contains("TTTTT") && !testString.contains("CCCC");
     }
     private boolean isCorrectTAPosition(String testString) {
         return testString.charAt(21)=='T' || testString.charAt(21)=='A';
