@@ -8,8 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="800.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.szbk.amir.AmirController">
+<VBox prefHeight="800.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.szbk.amir.AmirController">
   <children>
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="481.0" prefWidth="600.0" VBox.vgrow="ALWAYS">
       <children>
@@ -18,9 +17,10 @@
             <Font size="18.0" />
           </font>
         </Label>
-            <TextArea layoutX="28.0" layoutY="41.0" prefHeight="166.0" prefWidth="550.0" fx:id="inputArea"/>
+            <TextArea fx:id="inputArea" layoutX="28.0" layoutY="41.0" prefHeight="166.0" prefWidth="550.0" />
             <Button layoutX="289.0" layoutY="222.0" mnemonicParsing="false" onAction="#parseBtnClick" text="Do da magic!" />
-            <ListView layoutX="28.0" layoutY="271.0" prefHeight="486.0" prefWidth="550.0" fx:id="outputList"/>
+            <ListView fx:id="outputList" layoutX="28.0" layoutY="271.0" prefHeight="486.0" prefWidth="550.0" />
+            <Button layoutX="277.0" layoutY="761.0" mnemonicParsing="false" onAction="#copyClipboard" text="Copy to clipboard" />
       </children>
     </AnchorPane>
   </children>

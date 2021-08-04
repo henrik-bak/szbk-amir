@@ -3,9 +3,12 @@ package com.szbk.amir;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class AmirController {
     @FXML
@@ -24,7 +27,8 @@ public class AmirController {
             String testString = rna.substring(i, i+22);
 
             if (startWithGC(testString) && isCorrectTAPosition(testString) && thirdCharNotTA(testString) &&
-                    correctAPosition(testString) && gcContentCheck19(testString) && gcContentCheck1022(testString) && consecutiveLetter(testString)) {
+                    correctAPosition(testString) && gcContentCheck19(testString) && gcContentCheck1022(testString) &&
+                    consecutiveLetter(testString) && weightCheck(testString)) {
                 matches.add(number + " : " + testString);
                 number++;
             }
@@ -36,6 +40,13 @@ public class AmirController {
             outputList.getItems().addAll(matches);
         }
 
+    }
+
+    @FXML
+    protected void copyClipboard() {
+        final ClipboardContent content = new ClipboardContent();
+        content.putString(outputList.getItems().toString());
+        Clipboard.getSystemClipboard().setContent(content);
     }
 
     private boolean startWithGC(String testString) {
@@ -65,6 +76,20 @@ public class AmirController {
     }
     private boolean isCorrectTAPosition(String testString) {
         return testString.charAt(21)=='T' || testString.charAt(21)=='A';
+    }
+
+    private boolean weightCheck(String testString) {
+        int firstGCCount = (int) testString.substring(0, 3).chars().filter(ch -> ch == 'G' || ch == 'C').count();
+        int firstATCount = (int) testString.substring(0, 3).chars().filter(ch -> ch == 'A' || ch == 'T').count();
+
+        String lastChars = testString.substring(testString.length() - 4);
+        if (firstGCCount < firstATCount) {
+            return lastChars.chars().filter(ch -> ch == 'G' || ch == 'C').count() >
+                    lastChars.chars().filter(ch -> ch == 'A' || ch == 'T').count();
+        } else {
+            return lastChars.chars().filter(ch -> ch == 'G' || ch == 'C').count() <
+                    lastChars.chars().filter(ch -> ch == 'A' || ch == 'T').count();
+        }
     }
 
 }
