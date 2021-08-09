@@ -1,52 +1,98 @@
 package com.szbk.amir;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.ListView;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 
+import java.awt.*;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
+import java.util.stream.Collectors;
 
 public class AmirController {
     @FXML
     private TextArea inputArea;
 
     @FXML
-    private ListView outputList;
+    private TableView tableView;
+
+    @FXML
+    private TableColumn<FastaResult, Integer> numberColumn;
+    @FXML
+    private TableColumn<FastaResult, String> fastaColumn;
+    @FXML
+    private TableColumn<FastaResult, Button> btnColumn;
+
+    private List<String> fastaStrings;
 
     @FXML
     protected void parseBtnClick() {
-        outputList.getItems().clear();
+        tableView.getItems().clear();
+
+        numberColumn.setCellValueFactory(new PropertyValueFactory<>("number"));
+        fastaColumn.setCellValueFactory(new PropertyValueFactory<>("fasta"));
+        btnColumn.setCellValueFactory(new PropertyValueFactory<>("button"));
+
+        tableView.setPlaceholder(new Label("No rows to display"));
+
         int number = 1;
         String rna = inputArea.getText().toUpperCase().trim().replace("\n", "").replace("\r", "");
-        List<String> matches = new ArrayList<>();
         for (int i=0; i<= rna.length()-22; i++) {
             String testString = rna.substring(i, i+22);
 
             if (startWithGC(testString) && isCorrectTAPosition(testString) && thirdCharNotTA(testString) &&
                     correctAPosition(testString) && gcContentCheck19(testString) && gcContentCheck1022(testString) &&
-                    consecutiveLetter(testString) && weightCheck(testString)) {
-                matches.add(number + " : " + testString);
+                    consecutiveLetter(testString)) {
+                if (fastaStrings == null) {
+                    fastaStrings = new ArrayList<>();
+                }
+                fastaStrings.add(testString);
+                Button btn = new Button("BLAST this sh*t!");
+
+                btn.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override public void handle(ActionEvent e) {
+                        try {
+                            Desktop.getDesktop().browse(new URL("https://blast.ncbi.nlm.nih.gov/Blast.cgi?QUERY="+testString+"&CMD=Put&DATABASE=refseq_select_rna&PROGRAM=blastn").toURI());
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        } catch (URISyntaxException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                });
+                FastaResult fastaResult = new FastaResult(number, testString, btn);
+                tableView.getItems().add(fastaResult);
                 number++;
             }
-
         }
-        if (matches.isEmpty()) {
-            outputList.getItems().add("No match found!");
-        } else {
-            outputList.getItems().addAll(matches);
-        }
-
     }
 
     @FXML
     protected void copyClipboard() {
         final ClipboardContent content = new ClipboardContent();
-        content.putString(outputList.getItems().toString());
+        List<FastaResult> items = tableView.getItems();
+        content.putString(items.stream().map(FastaResult::getFasta).collect(Collectors.joining(",")));
         Clipboard.getSystemClipboard().setContent(content);
+    }
+
+    @FXML
+    protected void blastAll() throws IOException, URISyntaxException {
+        List<FastaResult> items = tableView.getItems();
+        String queryString = items.stream().map(a -> "> " + a.getNumber() + " " + a.getFasta() + "\n" + a.getFasta() + "\n").collect(Collectors.joining());
+        String encodedString = URLEncoder.encode(queryString, StandardCharsets.UTF_8.toString());
+        Desktop.getDesktop().browse(new URL("https://blast.ncbi.nlm.nih.gov/Blast.cgi?QUERY=" + encodedString + "&CMD=Put&DATABASE=refseq_select_rna&PROGRAM=blastn").toURI());
     }
 
     private boolean startWithGC(String testString) {
@@ -58,8 +104,8 @@ public class AmirController {
     }
 
     private boolean gcContentCheck19(String testString) {
-        int gcNumber = (int) testString.substring(0, 8).chars().filter(ch -> ch == 'G' || ch == 'C').count();
-        return gcNumber > 5;
+        int gcNumber = (int) testString.substring(0, 9).chars().filter(ch -> ch == 'G' || ch == 'C').count();
+        return gcNumber >= 5;
     }
 
     private boolean correctAPosition(String testString) {
@@ -68,7 +114,7 @@ public class AmirController {
 
     private boolean gcContentCheck1022(String testString) {
         int gcNumber = (int) testString.substring(9).chars().filter(ch -> ch == 'G' || ch == 'C').count();
-        return gcNumber < 6;
+        return gcNumber <= 6;
     }
 
     private boolean consecutiveLetter(String testString) {
@@ -77,7 +123,7 @@ public class AmirController {
     private boolean isCorrectTAPosition(String testString) {
         return testString.charAt(21)=='T' || testString.charAt(21)=='A';
     }
-
+/*
     private boolean weightCheck(String testString) {
         int firstGCCount = (int) testString.substring(0, 3).chars().filter(ch -> ch == 'G' || ch == 'C').count();
         int firstATCount = (int) testString.substring(0, 3).chars().filter(ch -> ch == 'A' || ch == 'T').count();
@@ -91,5 +137,5 @@ public class AmirController {
                     lastChars.chars().filter(ch -> ch == 'A' || ch == 'T').count();
         }
     }
-
+*/
 }
