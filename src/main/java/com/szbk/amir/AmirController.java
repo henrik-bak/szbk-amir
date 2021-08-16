@@ -83,7 +83,7 @@ public class AmirController {
     protected void copyClipboard() {
         final ClipboardContent content = new ClipboardContent();
         List<FastaResult> items = tableView.getItems();
-        content.putString(items.stream().map(FastaResult::getFasta).collect(Collectors.joining(",")));
+        content.putString(items.stream().map(f -> f.getNumber().toString() + ": " + f.getFasta()).collect(Collectors.joining("\n")));
         Clipboard.getSystemClipboard().setContent(content);
     }
 
@@ -91,8 +91,9 @@ public class AmirController {
     protected void blastAll() throws IOException, URISyntaxException {
         List<FastaResult> items = tableView.getItems();
         String queryString = items.stream().map(a -> "> " + a.getNumber() + " " + a.getFasta() + "\n" + a.getFasta() + "\n").collect(Collectors.joining());
-        String encodedString = URLEncoder.encode(queryString, StandardCharsets.UTF_8.toString());
-        Desktop.getDesktop().browse(new URL("https://blast.ncbi.nlm.nih.gov/Blast.cgi?QUERY=" + encodedString + "&CMD=Put&DATABASE=refseq_select_rna&PROGRAM=blastn").toURI());
+        String encodedQueryString = URLEncoder.encode(queryString, StandardCharsets.UTF_8.toString());
+        String encodedSpeciesString = URLEncoder.encode("Mus musculus (taxid:10090)", StandardCharsets.UTF_8.toString());
+        Desktop.getDesktop().browse(new URL("https://blast.ncbi.nlm.nih.gov/Blast.cgi?QUERY=" + encodedQueryString + "&CMD=Put&DATABASE=refseq_rna&PROGRAM=blastn&MEGABLAST=on&EQ_MENU="+encodedSpeciesString).toURI());
     }
 
     private boolean startWithGC(String testString) {
